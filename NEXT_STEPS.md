@@ -125,3 +125,42 @@ Since real patient data is inaccessible for development purposes, these are prac
 | TCR repertoire | Public immuneACCESS datasets from Adaptive Biotechnologies (healthy donors and some cancer patients) |
 | HLA type | Infer from TCGA WES data using tools like OptiType, or use published HLA-typed cohorts |
 | Synthetic patient | Simulate a patient profile using published neoantigen case studies (e.g. Parkhurst et al. 2019, Nature Medicine) |
+
+---
+
+## Startup Blockers
+
+Beyond data access, there are commercial and regulatory constraints that would affect building this as a startup.
+
+### Tool Licensing (Commercial Use Restrictions)
+
+| Tool | Used for | Academic | Commercial | Alternative |
+|---|---|---|---|---|
+| AlphaFold 3 | TCR-pMHC structural prediction | Free (research only) | Requires Google DeepMind license | **Boltz-2** (MIT licensed) — already in the notebook |
+| NetMHCpan | MHC binding prediction | Free | Requires DTU commercial license | **MHCflurry 2.0** (MIT licensed) |
+| NetTCR | TCR-peptide binding prediction | Free | Requires DTU commercial license | **ERGO-II** (open source) |
+| NetChop | Proteasomal cleavage prediction | Free | Requires DTU commercial license | Limited alternatives — may need to license |
+| pVACseq | Neoantigen identification pipeline | Free (BSD) | Free (BSD) | No issue |
+
+### Clinical & Regulatory Blockers
+
+These cannot be fully worked around — they are hard requirements for any clinical deployment.
+
+| Blocker | Workaround? | Notes |
+|---|---|---|
+| Real patient data for development | Yes — use TCGA + public cohorts | Sufficient to build and validate computationally |
+| Real patient data for clinical claims | No | Requires ethics approval (IRB/NHS REC) and a hospital partnership |
+| Regulatory approval (SaMD) | No — but manageable | Output informs clinical decisions → classified as Software as a Medical Device under MHRA (UK), MDR (EU), or FDA. Plan for 2–3 years minimum |
+| Clinical validation study | No | Must run a study on real patients before any regulatory submission or clinical claim |
+| Vaccine manufacturing (GMP) | Out of scope | Partner with a CDMO — not a software problem |
+
+### Bottom Line for a Startup
+
+Nothing blocks you from **building the full system**. The development path using public data (TCGA, IEDB, immuneACCESS) is clear, and open-source alternatives exist for every commercially-restricted tool.
+
+The hard wall is at the point of **clinical use**:
+1. You need a hospital/oncology centre partner to run a validation study with real patients
+2. You need ethics approval before accessing any patient data
+3. You need SaMD regulatory clearance before clinical deployment
+
+The practical startup strategy is: build a compelling computational demo on public data → use that to secure an academic hospital partnership → run clinical validation through them → use that data for regulatory submission.
