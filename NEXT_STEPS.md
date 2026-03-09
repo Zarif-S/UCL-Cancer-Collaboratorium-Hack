@@ -1,0 +1,99 @@
+# Next Steps: TC-AWARE Pipeline
+
+## Current State
+
+The hackathon delivered a **proof-of-concept for Step 3 (structural modelling) only**.
+
+The notebook:
+- Takes 6 known TCR-pMHC binding pairs from IEDB
+- Enriches them with MHC heavy chain + β2-microglobulin sequences from UniProt
+- Generates AlphaFold 3 JSON input files (and Boltz-2 YAML files)
+- AF3 was run externally and returned ipTM=0.66, pTM=0.7 — confirming the 5-chain complex folds plausibly
+
+Everything else in the proposed pipeline is unbuilt.
+
+---
+
+## Pipeline Status
+
+| Step | Component | Status | Notes |
+|---|---|---|---|
+| 1 | Neoantigen identification from tumour genome | Not built | No variant calling, no NGS/WES pipeline |
+| 2 | MHC binding prediction | Not built | No NetMHCpan, no custom transformer |
+| 3 | TCR-pMHC structural modelling | PoC done | 6 IEDB complexes run through AF3 |
+| 3 | Exclusion of exhausted T-cell targets | Not built | The core innovation — no implementation |
+| 4 | Ranking & scoring pipeline | Not built | None of the 7 metrics implemented |
+| — | Patient-specific input pipeline | Not built | No support for real patient data as input |
+
+---
+
+## Known Bugs
+
+- **Boltz-2 cell** (`hack-1.ipynb`): reads from `AFserver_inputs/` but files are saved to `Human_AF3_inputs/`. Fix the directory path before running.
+
+---
+
+## What to Build Next (in order)
+
+### 1. Neoantigen Identification (Step 1)
+The entry point of the pipeline. Without this, there are no candidate peptides to score.
+
+- **Tool:** pVACseq (wraps variant calling → peptide extraction → HLA typing in one workflow)
+- **Input:** Paired tumour/normal WES or WGS BAM/VCF files
+- **Test data:** Use a TCGA sample (GDC portal) — somatic MAF files are publicly available
+- **Output:** List of candidate mutated 9-mer peptides specific to the tumour
+
+### 2. MHC Binding Prediction (Step 2)
+Filter the neoantigen candidates down to peptides that will actually be presented on the cell surface.
+
+- **Tools:** NetMHCpan 4.1 or MHCflurry 2.0 (both free, well-benchmarked)
+- **Input:** Candidate peptides from Step 1 + patient HLA type
+- **Output:** Peptides with predicted IC50 binding affinity; keep those below ~500 nM
+- **Note:** No need to train a custom transformer — existing tools are state of the art
+
+### 3. Exclusion of Exhausted T-Cell Targets (Step 3 — core innovation)
+This is the key differentiator of the TC-AWARE approach. Remove peptides the patient's immune system has already tried and failed to attack.
+
+- **Input A:** MHC-binding peptides from Step 2
+- **Input B:** Patient TCR repertoire sequences (blood sample; public test data available from Adaptive Biotechnologies immuneACCESS)
+- **TCR-peptide binding predictor:** NetTCR-2.0, ERGO-II, or ImRex
+- **Logic:** For each candidate peptide, predict which TCRs in the patient's repertoire bind it. Flag and remove peptides already targeted by known/expanded T-cell clones (indicating prior immune exposure and likely exhaustion).
+- **Output:** Filtered list of peptides the patient's immune system has *not* yet engaged
+
+### 4. Ranking & Scoring Pipeline (Step 4)
+Score the remaining candidates across multiple axes and output a ranked vaccine target list.
+
+The 7 metrics from the proposal:
+
+| Metric | How to compute |
+|---|---|
+| MHC-peptide binding affinity | NetMHCpan IC50 (from Step 2) |
+| TCR-peptide binding affinity | NetTCR / ERGO score (from Step 3) |
+| Surface presentation likelihood | NetChop (proteasomal cleavage) + TAP transport score |
+| Peptide concentration | Requires Ribo-seq or MS data — hardest to get |
+| Conservation across cancer subtypes | Cross-reference against TCGA mutation frequency |
+| Clonality (phylogenetic position) | Requires multi-region sequencing or ctDNA; use VAF as proxy |
+| Cross-reactivity / safety | BLAST against human proteome; flag close matches |
+
+- **Output:** Top-k peptides with per-metric scores and composite rank
+
+### 5. End-to-End Patient Pipeline
+Wire steps 1–4 into a single workflow that accepts:
+- Tumour VCF/MAF (from NGS)
+- Patient HLA type (from genotyping)
+- Patient TCR repertoire (from blood sequencing)
+
+And outputs a ranked, annotated list of personalised vaccine candidates.
+
+---
+
+## Data Still Needed
+
+| Data | Source | Used for |
+|---|---|---|
+| Tumour somatic mutations | TCGA via GDC portal (public) | Step 1 input |
+| Larger TCR-pMHC binding dataset | IEDB (relax current query filters) | Expand PoC beyond 6 entries |
+| Patient TCR repertoire | Adaptive Biotechnologies immuneACCESS (public) | Step 3 exclusion logic |
+| HLA population frequencies | Allele Frequency Net Database (public) | Prioritise broadly immunogenic alleles |
+| PDB TCR-pMHC structures | RCSB PDB (public) | Validate AF3 structural outputs |
+| Ribo-seq / MS-based peptidome | Cancer cell line data (public) | Peptide concentration metric in Step 4 |
