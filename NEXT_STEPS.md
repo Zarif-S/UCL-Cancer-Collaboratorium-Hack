@@ -87,13 +87,41 @@ And outputs a ranked, annotated list of personalised vaccine candidates.
 
 ---
 
-## Data Still Needed
+## Data Availability
 
-| Data | Source | Used for |
-|---|---|---|
-| Tumour somatic mutations | TCGA via GDC portal (public) | Step 1 input |
-| Larger TCR-pMHC binding dataset | IEDB (relax current query filters) | Expand PoC beyond 6 entries |
-| Patient TCR repertoire | Adaptive Biotechnologies immuneACCESS (public) | Step 3 exclusion logic |
-| HLA population frequencies | Allele Frequency Net Database (public) | Prioritise broadly immunogenic alleles |
-| PDB TCR-pMHC structures | RCSB PDB (public) | Validate AF3 structural outputs |
-| Ribo-seq / MS-based peptidome | Cancer cell line data (public) | Peptide concentration metric in Step 4 |
+There are two distinct categories of data this pipeline needs: **development/training data** (used to build and validate the system) and **patient-specific clinical data** (the actual per-patient inputs in a real deployment). These have very different accessibility profiles.
+
+### Development & Training Data
+
+| Data | Source | Availability | Notes |
+|---|---|---|---|
+| TCR-pMHC binding pairs | IEDB | Open access | Current dataset uses 6 entries — relax query filters to get more |
+| HLA-peptide binding affinities | IEDB | Open access | Large curated dataset |
+| MHC heavy chain sequences | UniProt REST API | Open access | Already used in the PoC |
+| Tumour somatic mutations (research cohorts) | TCGA via GDC portal | Controlled access | Processed MAF files are open; raw WES/WGS requires dbGaP application |
+| TCR repertoire data (research cohorts) | Adaptive Biotechnologies immuneACCESS | Mixed | Some datasets open; others require registration or MTA |
+| HLA population frequencies | Allele Frequency Net Database | Open access | |
+| TCR-pMHC crystal structures | RCSB PDB | Open access | For validating AF3 outputs |
+| Ribo-seq / MS peptidome (cell lines) | PRIDE, GEO, published studies | Open access | For surface presentation / peptide concentration metrics |
+
+### Patient-Specific Clinical Data
+
+This is what the pipeline would consume in a real clinical deployment. **None of this is publicly available** — it is protected personal health data governed by GDPR (UK/EU) and equivalent regulations.
+
+| Data | How it's obtained | Availability | Barrier |
+|---|---|---|---|
+| Patient tumour genome | Tumour biopsy + NGS/WES sequencing | Not public | Requires patient consent, NHS/hospital ethics approval, clinical governance |
+| Patient germline genome | Blood or saliva sample + sequencing | Not public | Same as above — needed to distinguish somatic from germline variants |
+| Patient HLA genotype | Derived from germline sequencing or dedicated typing | Not public | Clinical data, tied to patient identity |
+| Patient TCR repertoire | Blood draw + bulk/single-cell TCR-seq | Not public | Clinical sample, consent required; also expensive (~£500–2000 per patient) |
+
+### Workarounds for Development Without Patient Data
+
+Since real patient data is inaccessible for development purposes, these are practical alternatives:
+
+| Need | Alternative |
+|---|---|
+| Tumour genome | TCGA open-access MAF files (de-identified, consented research cohorts) |
+| TCR repertoire | Public immuneACCESS datasets from Adaptive Biotechnologies (healthy donors and some cancer patients) |
+| HLA type | Infer from TCGA WES data using tools like OptiType, or use published HLA-typed cohorts |
+| Synthetic patient | Simulate a patient profile using published neoantigen case studies (e.g. Parkhurst et al. 2019, Nature Medicine) |
