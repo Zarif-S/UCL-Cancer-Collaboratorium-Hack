@@ -164,3 +164,43 @@ The hard wall is at the point of **clinical use**:
 3. You need SaMD regulatory clearance before clinical deployment
 
 The practical startup strategy is: build a compelling computational demo on public data → use that to secure an academic hospital partnership → run clinical validation through them → use that data for regulatory submission.
+
+---
+
+## Funding Roadmap
+
+VC funding is not the first step — it comes after clinical validation data exists. The realistic path is **grants first, hospital partnership second, VC third**.
+
+### Phase-by-Phase Plan
+
+| Phase | Timeline | What to do | Funding |
+|---|---|---|---|
+| 1 | Now – 6 months | Build full computational pipeline on public data | Self-funded / UCL resources / hackathon prize |
+| 2 | 6 – 12 months | Approach UCL/UCLH oncology group for research partnership (MOU, not commercial) | Apply for Innovate UK or Wellcome grant (£50–250k) |
+| 3 | 1 – 2 years | Run validation study through hospital partnership, generate clinical data | NIHR i4i or Wellcome (~£500k–1M) |
+| 4 | 2 – 3 years | Regulatory pre-submission (SaMD), seed fundraise | Seed VC round (£1–5M) — now you have clinical data to show |
+
+### Why the Hospital Partnership Doesn't Cost Money (Initially)
+
+NHS hospitals and academic medical centres actively want research collaborations — it generates publications, grant co-applications, and prestige. The initial agreement is a **research MOU**, not a commercial contract. You provide the software; they provide clinical access and expertise. No money changes hands at this stage.
+
+### Early-Stage Grant Sources (Non-Dilutive)
+
+These fund pre-clinical and early translational work without taking equity:
+
+| Funder | Grant | Amount | Notes |
+|---|---|---|---|
+| Innovate UK | Health & Life Sciences grants | £50k–£500k | Funds health tech at early stage |
+| NIHR | i4i (Invention for Innovation) | £500k–£1M | Specifically for NHS-applicable health tech |
+| Wellcome Trust | Leap / Innovator Awards | £100k–£500k | Funds ambitious biomedical ideas |
+| UKRI | Future Leaders Fellowship | £400k–£1.5M | For early-career researchers on the team |
+
+### The UCL Shortcut
+
+Given the project originated at the UCL CCC Hackathon, there are direct routes in:
+
+- **UCL Technology Fund** — translational funding + IP support for UCL spinouts
+- **UCL Business (UCLB)** — helps commercialise UCL research, provides introductions to clinical collaborators at UCLH
+- **UCL Hatchery / Entrepreneur in Residence programme** — early-stage startup support
+
+UCLH (University College London Hospitals) is one of the leading cancer centres in the UK and is directly linked to UCL — the oncology groups there are the natural first clinical partner.
